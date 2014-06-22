@@ -1,0 +1,57 @@
+
+tapgameui.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+logo
+  rotate: false
+  xy: 1, 357
+  size: 600, 300
+  orig: 600, 300
+  offset: 0, 0
+  index: -1
+bigfont
+  rotate: false
+  xy: 1, 99
+  size: 512, 256
+  orig: 512, 256
+  offset: 0, 0
+  index: -1
+smallfont
+  rotate: false
+  xy: 603, 401
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+blue_button00
+  rotate: false
+  xy: 1, 48
+  size: 190, 49
+  split: 5, 5, 5, 9
+  orig: 190, 49
+  offset: 0, 0
+  index: -1
+blue_button01
+  rotate: false
+  xy: 1, 1
+  size: 190, 45
+  split: 5, 5, 5, 5
+  orig: 190, 45
+  offset: 0, 0
+  index: -1
+blue_panel
+  rotate: false
+  xy: 861, 557
+  size: 100, 100
+  split: 7, 7, 5, 5
+  orig: 100, 100
+  offset: 0, 0
+  index: -1
+button_play
+  rotate: false
+  xy: 193, 1
+  size: 96, 96
+  orig: 96, 96
+  offset: 0, 0
+  index: -1
