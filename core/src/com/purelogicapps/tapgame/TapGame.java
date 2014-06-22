@@ -1,27 +1,25 @@
 package com.purelogicapps.tapgame;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.Game;
+import com.purelogicapps.tapgame.screens.MainMenu;
+import com.purelogicapps.tapgame.screens.SinglePlayerScreen;
 
-public class TapGame extends ApplicationAdapter {
-	SpriteBatch batch;
-	Texture img;
+
+
+public class TapGame extends Game{
+	public static final float TARGET_SCREEN_WIDTH = 720;
+	public static final float TARGET_SCREEN_HEIGHT = 1280;
+
+	@Override
+	public void create() {
+		Assets.load();
+		Arrows.load();
+		UIStyle.load();
+		PersistantBackground.setBackground(Assets.background, 4, 4);
+		SinglePlayerScreen p = new SinglePlayerScreen();
+		this.setScreen(p);
+//		MainMenu mainMenu = new MainMenu();
+//		this.setScreen(mainMenu);
+	}
 	
-	@Override
-	public void create () {
-		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
-	}
-
-	@Override
-	public void render () {
-		Gdx.gl.glClearColor(1, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		batch.begin();
-		batch.draw(img, 0, 0);
-		batch.end();
-	}
 }
