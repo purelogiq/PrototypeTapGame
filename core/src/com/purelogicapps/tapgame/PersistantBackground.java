@@ -17,7 +17,7 @@ public class PersistantBackground {
 	private static final OrthographicCamera cam = new OrthographicCamera();
 	private static final SpriteBatch batch = new SpriteBatch(2);
 	private static Texture background;
-	private static float backgroundWidth; 
+	private static float backgroundWidth;
 	private static float backgroundHeight; 
 	private static float scrollSpeedHoriz;
 	private static float scrollSpeedVert;

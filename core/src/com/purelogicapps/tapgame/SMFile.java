@@ -151,116 +151,92 @@ public class SMFile {
 	}
 	
 	//========= Parser ==========================
-	public static class ParseException extends Exception{
-		private static final long serialVersionUID = 6330479374549880988L;
-		public ParseException(String msg) {
-			super(msg);
-		}
-		
-		public ParseException(String msg, Throwable tr) {
-			super(msg);
-		}
-		
-		public ParseException(String exceptionName, String msg, Throwable tr) {
-			super(exceptionName + ": " + msg);
-		}
-	}
-
-	public static SMFile parseSMFile(String filepath, String filename, String filetext) 
-			throws ParseException {
+	public static SMFile parseSMFile(String filetext){
 		SMFile smfile = new SMFile();
-		smfile.filepath = filepath;
-		smfile.filename = filename;
 		
 		Scanner smScanner = new Scanner(filetext);
 		smScanner.useDelimiter(";");
 		String buffer = "";
-		
-		try {
-			while (smScanner.hasNext()) {
-				buffer = smScanner.next().trim();
-				if (buffer.contains("#")) { // Info tag
-					// Ignore comments and the byte order mark (xEF BB BF)
-					if (buffer.charAt(0) != '#') {
-						buffer = buffer.substring(buffer.indexOf('#'));
-					}
+		while (smScanner.hasNext()) {
+			buffer = smScanner.next().trim();
+			if (buffer.contains("#")) { // Info tag
+				// Ignore comments and the byte order mark (xEF BB BF)
+				if (buffer.charAt(0) != '#') {
+					buffer = buffer.substring(buffer.indexOf('#'));
+				}
 
-					// Start filling in the info...
-					if (buffer.contains("#TITLE:")) {
-						smfile.title = stripSM(buffer);
-					}
-					else if (buffer.contains("#SUBTITLE:")) {
-						smfile.subtitle = stripSM(buffer);
-					}
-					else if (buffer.contains("#ARTIST:")) {
-						smfile.artist = stripSM(buffer);
-					} 
-					else if (buffer.contains("#TITLETRANSLIT:")) {
-						smfile.titletranslit = stripSM(buffer);
-					} 
-					else if (buffer.contains("#SUBTITLETRANSLIT:")) {
-						smfile.subtitletranslit = stripSM(buffer);
-					} 
-					else if (buffer.contains("#ARTISTTRANSLIT:")) {
-						smfile.artisttranslit = stripSM(buffer);
-					} 
-					else if (buffer.contains("#CREDIT:")) {
-						smfile.credit = stripSM(buffer);
-					} 
-					else if (buffer.contains("#BANNER:")) {
-						smfile.banner = stripSM(buffer);
-					} 
-					else if (buffer.contains("#BACKGROUND:")) {
-						smfile.background = stripSM(buffer);
-					} 
-					else if (buffer.contains("#CDTITLE:")) {
-						smfile.cdtitle = stripSM(buffer);
-					} 
-					else if (buffer.contains("#MUSIC:")) {
-						smfile.music = stripSM(buffer);
-					} 
-					else if (buffer.contains("#OFFSET:")) {
-						smfile.offset = Float.parseFloat(stripSM(buffer));
-					} 
-					else if (buffer.contains("#SAMPLESTART:")) {
-						smfile.samplestart = Float.parseFloat(stripSM(buffer));
-					} 
-					else if (buffer.contains("#SAMPLELENGTH:")) {
-						smfile.samplelength = Float.parseFloat(stripSM(buffer));
-					} 
-					else if (buffer.contains("#SELECTABLE:")) {
-						// Ignore.
-					} 
-					else if (buffer.contains("#BPMS:")) {
-						parseBPM(smfile, stripSM(buffer));
-					} 
-					else if (buffer.contains("#DISPLAYBPM:")) {
-						// Ignore
-					} 
-					else if (buffer.contains("#STOPS:")) {
-						parseStop(smfile, stripSM(buffer));
-					} 
-					else if (buffer.contains("#BGCHANGES:")) {
-						// Ignore.
-					} 
-					else if (buffer.contains("#NOTES:")) { // This will occur for every #NOTES tag.
-						parseNotes(smfile, stripSM(buffer));
-					} 
-					else {
-						// Unsupported tag outside of SM 3.9's specification?
-					}
+				// Start filling in the info...
+				if (buffer.contains("#TITLE:")) {
+					smfile.title = stripSM(buffer);
+				}
+				else if (buffer.contains("#SUBTITLE:")) {
+					smfile.subtitle = stripSM(buffer);
+				}
+				else if (buffer.contains("#ARTIST:")) {
+					smfile.artist = stripSM(buffer);
+				} 
+				else if (buffer.contains("#TITLETRANSLIT:")) {
+					smfile.titletranslit = stripSM(buffer);
+				} 
+				else if (buffer.contains("#SUBTITLETRANSLIT:")) {
+					smfile.subtitletranslit = stripSM(buffer);
+				} 
+				else if (buffer.contains("#ARTISTTRANSLIT:")) {
+					smfile.artisttranslit = stripSM(buffer);
+				} 
+				else if (buffer.contains("#CREDIT:")) {
+					smfile.credit = stripSM(buffer);
+				} 
+				else if (buffer.contains("#BANNER:")) {
+					smfile.banner = stripSM(buffer);
+				} 
+				else if (buffer.contains("#BACKGROUND:")) {
+					smfile.background = stripSM(buffer);
+				} 
+				else if (buffer.contains("#CDTITLE:")) {
+					smfile.cdtitle = stripSM(buffer);
+				} 
+				else if (buffer.contains("#MUSIC:")) {
+					smfile.music = stripSM(buffer);
+				} 
+				else if (buffer.contains("#OFFSET:")) {
+					smfile.offset = Float.parseFloat(stripSM(buffer));
+				} 
+				else if (buffer.contains("#SAMPLESTART:")) {
+					smfile.samplestart = Float.parseFloat(stripSM(buffer));
+				} 
+				else if (buffer.contains("#SAMPLELENGTH:")) {
+					smfile.samplelength = Float.parseFloat(stripSM(buffer));
+				} 
+				else if (buffer.contains("#SELECTABLE:")) {
+					// Ignore.
+				} 
+				else if (buffer.contains("#BPMS:")) {
+					parseBPM(smfile, stripSM(buffer));
+				} 
+				else if (buffer.contains("#DISPLAYBPM:")) {
+					// Ignore
+				} 
+				else if (buffer.contains("#STOPS:")) {
+					parseStop(smfile, stripSM(buffer));
+				} 
+				else if (buffer.contains("#BGCHANGES:")) {
+					// Ignore.
+				} 
+				else if (buffer.contains("#NOTES:")) { // This will occur for every #NOTES tag.
+					parseNotes(smfile, stripSM(buffer));
+				} 
+				else {
+					// Unsupported tag outside of SM 3.9's specification?
 				}
 			}
-		} catch (Exception e) {
-			smScanner.close();
-			throw new ParseException(e.getMessage(), e);
 		}
 		smScanner.close();
 		
 		return smfile;
 	}
 	
-	private static void parseBPM(SMFile smfile, String buffer) throws ParseException {
+	private static void parseBPM(SMFile smfile, String buffer){
 		Scanner bpmStringBuffer = new Scanner(buffer);
 		bpmStringBuffer.useDelimiter(",");
 		while (bpmStringBuffer.hasNext()) {
@@ -275,14 +251,14 @@ public class SMFile {
 				}
 			} catch (Exception e) { // Also catch NumberFormatExceptions
 				bpmStringBuffer.close();
-				throw new ParseException(e.getClass().getSimpleName(),
+				throw new IllegalArgumentException(
 						"Improperly formatted #BPMS pair \"" + pair + "\": " + e.getMessage(), e);
 			}
 		}
 		bpmStringBuffer.close();
 	}
 	
-	private static void parseStop(SMFile smfile, String buffer) throws ParseException {
+	private static void parseStop(SMFile smfile, String buffer) {
 		Scanner stopStringBuffer = new Scanner(buffer);
 		stopStringBuffer.useDelimiter(",");
 		while (stopStringBuffer.hasNext()) {
@@ -297,14 +273,14 @@ public class SMFile {
 				}
 			} catch (Exception e) { // Also catch NumberFormatExceptions
 				stopStringBuffer.close();
-				throw new ParseException(e.getClass().getSimpleName(),
+				throw new IllegalArgumentException(
 						"Improperly formatted #STOPS pair \"" + pair + "\": " + e.getMessage(), e);
 			}
 		}
 		stopStringBuffer.close();
 	}
 
-	private static void parseNotes(SMFile smfile, String buffer) throws ParseException {
+	private static void parseNotes(SMFile smfile, String buffer) {
 		// Expected format:
 		// #NOTES:
 		// <NotesType>:
@@ -381,61 +357,53 @@ public class SMFile {
 			notesScanner.close();
 		} catch (Exception e) {
 			notesScanner.close();
-			throw new ParseException(e.getClass().getSimpleName(), 
+			throw new IllegalArgumentException(
 					"Improperly formatted #NOTES data: " + e.getMessage(), e);
 		}
 	}
 	
-	public static void parseNotesData(Notes notes, String buffer) throws ParseException {
+	private static void parseNotesData(Notes notes, String buffer) {
 		Scanner notesDataScanner = new Scanner(buffer);
 		notesDataScanner.useDelimiter(",");
 		String lineString = "";
 		String measureString = "";
 		int lineSize = Notes.lineSize(notes.notestype);
-		
-		try {
-			while (notesDataScanner.hasNext()) {
-				ArrayList<char[]> measure = new ArrayList<char[]>();
-				measureString = notesDataScanner.next().trim();
-				
-				// Assume that stepfile makers separate lines within a measure by page breaks.
-				Scanner measureScanner = new Scanner(measureString);
-				while (measureScanner.hasNextLine()) {
-					lineString = measureScanner.nextLine().trim();
-					if (lineString.charAt(0) == '/') { // comment
-						continue;
-					}
-					
-					if (lineString.length() != lineSize) {
-						measureScanner.close();
-						notesDataScanner.close();
-						throw new ParseException("line length " + lineString.length() +
-								" does not match note type " + lineSize);
-					}
-					
-					char[] line = new char[lineSize];
-					for(int i = 0; i < lineSize; i++){
-						line[i] = lineString.charAt(i);
-					}
-					
-					measure.add(line);
+		while (notesDataScanner.hasNext()) {
+			ArrayList<char[]> measure = new ArrayList<char[]>();
+			measureString = notesDataScanner.next().trim();
+			
+			// Assume that stepfile makers separate lines within a measure by page breaks.
+			Scanner measureScanner = new Scanner(measureString);
+			while (measureScanner.hasNextLine()) {
+				lineString = measureScanner.nextLine().trim();
+				if (lineString.charAt(0) == '/') { // comment
+					continue;
 				}
 				
-				notes.measures.add(measure);
-				measureScanner.close();
+				if (lineString.length() != lineSize) {
+					measureScanner.close();
+					notesDataScanner.close();
+					throw new IllegalArgumentException("line length " + lineString.length() +
+							" does not match note type " + lineSize);
+				}
+				
+				char[] line = new char[lineSize];
+				for(int i = 0; i < lineSize; i++){
+					line[i] = lineString.charAt(i);
+				}
+				
+				measure.add(line);
 			}
-		} catch (Exception e) {
-			notesDataScanner.close();
-			throw new ParseException(
-					e.getClass().getSimpleName(), e.getMessage() + " for line " + lineString, e);
-		}
-		
+			
+			notes.measures.add(measure);
+			measureScanner.close();
+		}		
 		notesDataScanner.close();
 	}
 	
-	private static String stripSM(String buffer) throws ParseException {
+	private static String stripSM(String buffer) {
 		if (!buffer.contains(":")) {
-			throw new ParseException("Info tag missing ':' char: " + buffer);
+			throw new IllegalArgumentException("Info tag missing ':' char: " + buffer);
 		} else {
 			return buffer.substring(buffer.indexOf(":") + 1).trim();
 		}

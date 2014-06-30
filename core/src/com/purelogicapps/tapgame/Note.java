@@ -1,7 +1,7 @@
 package com.purelogicapps.tapgame;
 
 public class Note {
-	public static enum NoteType  { TAP, MINE, HOLD, ROLL }
+	public static enum NoteType  { TAP, MINE, HOLD }
 	public static enum HoldState { INACTIVE, ALIVE, SLEEPING, DEAD }
 	
 	public NoteType type;
@@ -14,6 +14,7 @@ public class Note {
 	public float end;
 	public HoldState holdState = HoldState.INACTIVE;
 	public float sleepingTime;
+	public boolean hidden = false;
 	
 	public Note(NoteType type, int fraction, float start, float end){
 		this.type = type;
@@ -22,8 +23,7 @@ public class Note {
 		this.end = end;
 	}
 	
-	/** Transitions from the initial hold/roll tap into the hold/roll.
-	 *  Also call this every time a roll is tapped. */
+	/** Transitions from the initial hold tap into the hold. */
 	public void hit(){
 		if(holdState != HoldState.DEAD){
 			holdState = HoldState.ALIVE;
@@ -42,13 +42,5 @@ public class Note {
 			sleepingTime += deltaTime;
 			if(sleepingTime > maxSleepTime) holdState = HoldState.DEAD;
 		}
-	}
-	
-	/** Call this every frame to update the roll's state */
-	public void updateRoll(float deltaTime, float maxDelayTime){
-		if(holdState == HoldState.INACTIVE || holdState == HoldState.DEAD) return;
-		sleepingTime += deltaTime;
-		if(sleepingTime > maxDelayTime) holdState = HoldState.DEAD;
-	}
-	
+	}	
 }

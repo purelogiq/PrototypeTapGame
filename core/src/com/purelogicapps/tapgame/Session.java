@@ -2,6 +2,11 @@ package com.purelogicapps.tapgame;
 
 import java.util.ArrayList;
 
+import com.badlogic.gdx.Files.FileType;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Texture;
 import com.purelogicapps.tapgame.Note.NoteType;
 import com.purelogicapps.tapgame.SMFile.Notes;
 import com.purelogicapps.tapgame.SMFile.SMPair;
@@ -18,13 +23,42 @@ public class Session {
 	
 	public SMFile smfile;
 	public int notesIndex;
+	public Texture banner = null;
+	public Texture background = null;
+	public Music music = null;
 	
 	// Options.
-	public int speed = 1;
-//	public boolean noHolds = false;
-//	public boolean noDoubles = false;
+	public float speed = 1.5f;
+	public boolean noHolds = false;
+	public boolean noDoubles = false;
+	public boolean strechLandscape = true;
 	
-	public SinglePlayerModel loadModel(){
+	public void dispose(){
+		if(this.background != null) this.background.dispose();
+		if(this.banner != null) this.banner.dispose();
+		if(this.music != null) this.music.dispose();
+		banner = null;
+		background = null;
+		music = null;
+	}
+	
+	public void loadNewSMFile(String internalPath){
+		dispose();
+		FileHandle file = Gdx.files.internal(internalPath);
+		this.smfile = SMFile.parseSMFile(file.readString("US-ASCII"));
+		this.banner = new Texture(file.sibling(smfile.banner));
+		this.background = new Texture(file.sibling(smfile.background));
+		this.music = Gdx.audio.newMusic(file.sibling(smfile.music));
+	}
+	
+	public void resetOptions(){
+		this.speed = 1f;
+		this.noHolds = false;
+		this.noDoubles = false;
+		this.strechLandscape = true;
+	}
+	
+	public PlayModel createModel(){
 		ArrayList<Note> col0 = new ArrayList<Note>();
 		ArrayList<Note> col1 = new ArrayList<Note>();
 		ArrayList<Note> col2 = new ArrayList<Note>();
@@ -51,7 +85,7 @@ public class Session {
 						note = new Note(NoteType.HOLD, wholeFraction, start, end);
 					}else if(line[k] == ROLL_START){
 						float end = findHoldEnd(measures, i, j, k);
-						note = new Note(NoteType.ROLL, wholeFraction, start, end);
+						note = new Note(NoteType.HOLD, wholeFraction, start, end);
 					}else if(line[k] == MINE){
 						note = new Note(NoteType.MINE, wholeFraction, start, start);						
 					}else if(line[k] == LIFT){
@@ -95,8 +129,8 @@ public class Session {
 		
 		float offset = smfile.offset;
 		
-		return new SinglePlayerModel(col0arr, col1arr, col2arr, col3arr,
-				                     bpmBeats, bpmValues, stopBeats, stopValues, offset);
+		return new PlayModel(new Note[][]{col0arr, col1arr, col2arr, col3arr},
+				                     bpmBeats, bpmValues, stopBeats, stopValues, offset, speed);
 	}
 	
 	private static float findHoldEnd(ArrayList<ArrayList<char[]>> measures, 

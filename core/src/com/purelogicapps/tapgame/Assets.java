@@ -35,5 +35,4 @@ public class Assets {
 		bgmusic.dispose();
 		clap.dispose();
 	}
-
 }

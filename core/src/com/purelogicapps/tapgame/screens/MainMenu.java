@@ -68,7 +68,7 @@ public class MainMenu implements Screen{
 
 	@Override
 	public void dispose() {
-		// DEALLOCATE NATIVE MEMORY!!!!!!
+		stage.dispose();
 	}
 	
 	private void setupStage(){
