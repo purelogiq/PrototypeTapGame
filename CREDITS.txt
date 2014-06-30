@@ -1,0 +1,7 @@
+This project uses the following libraries and assets:
+
+-LibGDX, the underlying game engine.
+-Beats2 Note Arrows and Hold images
+-Songs and SM files from Stepmania (Chaos Japan, Calling Mars, Springtime), and DDR (Flowers)
+-Kenny's public domain UI pack.
+-A few other fonts and images I have lost track of, sorry!

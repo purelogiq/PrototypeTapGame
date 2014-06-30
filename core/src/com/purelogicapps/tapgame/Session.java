@@ -2,7 +2,6 @@ package com.purelogicapps.tapgame;
 
 import java.util.ArrayList;
 
-import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
@@ -46,7 +45,7 @@ public class Session {
 		dispose();
 		FileHandle file = Gdx.files.internal(internalPath);
 		this.smfile = SMFile.parseSMFile(file.readString("US-ASCII"));
-		this.banner = new Texture(file.sibling(smfile.banner));
+//		this.banner = new Texture(file.sibling(smfile.banner));
 		this.background = new Texture(file.sibling(smfile.background));
 		this.music = Gdx.audio.newMusic(file.sibling(smfile.music));
 	}

@@ -1,22 +1,30 @@
 package com.purelogicapps.tapgame.screens;
 
+import static com.badlogic.gdx.math.Interpolation.elasticOut;
+import static com.badlogic.gdx.math.Interpolation.swingOut;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.sequence;
+
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.purelogicapps.tapgame.Assets;
 import com.purelogicapps.tapgame.PersistantBackground;
+import com.purelogicapps.tapgame.SMFile.Notes.NotesType;
+import com.purelogicapps.tapgame.Session;
 import com.purelogicapps.tapgame.TapGame;
 import com.purelogicapps.tapgame.UIStyle;
-
-import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
-import static com.badlogic.gdx.math.Interpolation.*;
 
 public class MainMenu implements Screen{
 	
@@ -92,6 +100,21 @@ public class MainMenu implements Screen{
 		
 		// Create Play, Edit and Options button.
 		ImageTextButton btnPlay = new ImageTextButton("PLAY", UIStyle.blueImgTxtBtnStyle);
+		btnPlay.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				Assets.bgmusic.stop();
+				Session session = new Session();
+				session.loadNewSMFile(TapGame.SPRINGTIME);
+				for(int i = 0; i < session.smfile.notes.size(); i++){
+					if(session.smfile.notes.get(i).notestype != NotesType.SINGLE) continue;
+					System.out.println(i + ", " + session.smfile.notes.get(i).difficultyclass.name);
+				}
+				session.notesIndex = 4;
+				PlayScreen play = new PlayScreen(session);
+				((Game)(Gdx.app.getApplicationListener())).setScreen(play);
+			}
+		});
 		TextButton btnEdit = new TextButton("EDIT", UIStyle.txtBtnStyle);
 		TextButton btnOptions = new TextButton("OPTIONS", UIStyle.txtBtnStyle);
 		

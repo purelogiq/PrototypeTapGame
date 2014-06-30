@@ -1,8 +1,10 @@
 package com.purelogicapps.tapgame.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -12,7 +14,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.oracle.jrockit.jfr.DataType;
 import com.purelogicapps.tapgame.Note;
+import com.purelogicapps.tapgame.Note.HoldState;
 import com.purelogicapps.tapgame.PlayAssets;
 import com.purelogicapps.tapgame.Session;
 import com.purelogicapps.tapgame.PlayModel;
@@ -43,7 +47,7 @@ public class PlayScreen implements Screen, InputProcessor{
 	Sprite controlSprite;
 	Sprite noteSprite;
 	Sprite holdEndSprite;
-	Sprite holdSprite;
+	Sprite holdBodySprite;
 	
 	// Input stuff.
 	Vector3 touchVec;
@@ -74,7 +78,7 @@ public class PlayScreen implements Screen, InputProcessor{
 		holdEndSprite = new Sprite();
 		holdEndSprite.setSize(.75f, .75f);
 		holdEndSprite.setOriginCenter();
-		holdSprite = new Sprite();
+		holdBodySprite = new Sprite();
 		controlSprite = new Sprite();
 		controlSprite.setSize(1, 1);
 		controlSprite.setOriginCenter();
@@ -164,13 +168,13 @@ public class PlayScreen implements Screen, InputProcessor{
 	private void update(float delta){
 		if(songTime < 1) songTime = session.music.getPosition();
 		else songTime += delta;
-		model.update(songTime, colsHeld);
+		model.update(songTime, delta, colsHeld);
 		beatPos = model.getCurrentBeat();
 	}
 	
 	private void renderBackground(){
 		if(session.background != null){
-			batch.setColor(1, 1, 1, 0.5f);
+			batch.setColor(.5f, .5f, .5f, 1f);
 			Texture background = session.background;
 			float resizedHeight = background.getHeight() * screenWidth / screenHeight;
 			float resizedWidth = background.getWidth() * screenHeight / screenWidth;
@@ -208,40 +212,53 @@ public class PlayScreen implements Screen, InputProcessor{
 				if(!note.hidden &&
 				   note.start * session.speed < worldCam.position.y + worldHeight/2 + 2 &&
 				   note.end * session.speed > worldCam.position.y - worldHeight/2 - 2){
-					if(note.type == NoteType.TAP) renderArrow(note, col);
-					else if(note.type == NoteType.MINE) renderArrow(note, col);
+					if(note.type == NoteType.TAP) renderArrow(note, col, Color.WHITE);
+					else if(note.type == NoteType.MINE) renderArrow(note, col, Color.RED);
 					else if(note.type == NoteType.HOLD) renderHold(note, col);
 				}
 			}
 		}
 	}
 	
-	private void renderArrow(Note note, int col){
+	private void renderArrow(Note note, int col, Color tint){
 		noteSprite.setSize(1, 1);
 		noteSprite.setRegion(PlayAssets.toTex(note.fraction));
 		noteSprite.setRotation(getRotation(col));
 		noteSprite.setCenter(worldWidth/NUM_COLS/2 + worldWidth/NUM_COLS * col, 
 				             note.start * session.speed);
+		noteSprite.setColor(tint);
 		noteSprite.draw(batch);
 	}
 	
-	private void renderHold(Note note, int col){
-		holdSprite.setSize(.75f, note.end * session.speed - note.start * session.speed);
-		holdSprite.setRegion(PlayAssets.holdBodyActive);
-		holdSprite.setV(0);
-		holdSprite.setV2((note.end - note.start) * session.speed * 
-				          PlayAssets.n4.getRegionHeight() / PlayAssets.holdBodyActive.getHeight());
-		holdSprite.setCenter(worldWidth/NUM_COLS/2 + worldWidth/NUM_COLS * col, 0);
-		holdSprite.setY(note.start * session.speed);
-		holdSprite.draw(batch);
-
-		renderArrow(note, col);
-		// Draw hold end
-		noteSprite.setRegion(PlayAssets.holdEnd);
-		noteSprite.setRotation(0);
-		noteSprite.setCenter(worldWidth/NUM_COLS/2 + worldWidth/NUM_COLS * col, 
-				             note.end * session.speed);
-		noteSprite.draw(batch);
+	private void renderHold(Note hold, int col){
+		// Setup hold textures based on state.
+		if(hold.holdState == HoldState.INACTIVE || hold.holdState == HoldState.DEAD){
+			holdBodySprite.setRegion(PlayAssets.holdBodyInactive);
+			holdEndSprite.setRegion(PlayAssets.holdEnd);
+		} else if(hold.holdState == HoldState.ALIVE || hold.holdState == HoldState.SLEEPING){
+			holdBodySprite.setRegion(PlayAssets.holdBodyActive);
+			holdEndSprite.setRegion(PlayAssets.holdEnd);
+		}
+		
+		// Setup hold body and hold end size and position. 
+		holdBodySprite.setSize(.75f, (hold.end - hold.start) * session.speed);
+		holdBodySprite.setV(0);
+		holdBodySprite.setV2(holdBodySprite.getHeight() *
+				      PlayAssets.n4.getRegionHeight() / PlayAssets.holdBodyInactive.getHeight());
+		holdBodySprite.setCenter(worldWidth/NUM_COLS/2 + worldWidth/NUM_COLS * col, 0);
+		holdBodySprite.setY(hold.start * session.speed);
+		holdEndSprite.setCenter(worldWidth/NUM_COLS/2 + worldWidth/NUM_COLS * col, 
+				             hold.end * session.speed);
+		
+		// Draw hold body behind the arrow and the hold end. DEAD/SLEEPING holds should be darker.
+		Color tint = Color.WHITE;
+		if(hold.holdState == HoldState.DEAD) tint = Color.GRAY;
+		else if(hold.holdState == HoldState.SLEEPING) tint = Color.LIGHT_GRAY;
+		holdBodySprite.setColor(tint);
+		holdEndSprite.setColor(tint);
+		holdBodySprite.draw(batch);
+		renderArrow(hold, col, tint);
+		holdEndSprite.draw(batch);
 	}
 	
 	private void renderControls(){
@@ -269,12 +286,40 @@ public class PlayScreen implements Screen, InputProcessor{
 	//======= InputProcessor implementation ==================
 	@Override
 	public boolean keyDown(int keycode) {
-		return false;
+		if(keycode == Input.Keys.LEFT || keycode == Input.Keys.D){
+			colsHeld[0] = true;
+			model.touchDown(0);
+		}
+		if(keycode == Input.Keys.DOWN || keycode == Input.Keys.F){
+			colsHeld[1] = true;
+			model.touchDown(1);
+		}
+		if(keycode == Input.Keys.UP || keycode == Input.Keys.J){
+			colsHeld[2] = true;
+			model.touchDown(2);
+		}
+		if(keycode == Input.Keys.RIGHT || keycode == Input.Keys.K){
+			colsHeld[3] = true;
+			model.touchDown(3);
+		}
+		return true;
 	}
 
 	@Override
 	public boolean keyUp(int keycode) {
-		return false;
+		if(keycode == Input.Keys.LEFT || keycode == Input.Keys.D){
+			colsHeld[0] = false;
+		}
+		if(keycode == Input.Keys.DOWN || keycode == Input.Keys.F){
+			colsHeld[1] = false;
+		}
+		if(keycode == Input.Keys.UP || keycode == Input.Keys.J){
+			colsHeld[2] = false;
+		}
+		if(keycode == Input.Keys.RIGHT || keycode == Input.Keys.K){
+			colsHeld[3] = false;
+		}
+		return true;
 	}
 
 	@Override

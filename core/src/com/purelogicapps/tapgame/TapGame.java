@@ -1,7 +1,7 @@
 package com.purelogicapps.tapgame;
 
 import com.badlogic.gdx.Game;
-import com.purelogicapps.tapgame.screens.PlayScreen;
+import com.purelogicapps.tapgame.screens.MainMenu;
 
 public class TapGame extends Game{
 	public static final float TARGET_SCREEN_WIDTH = 720;
@@ -15,17 +15,13 @@ public class TapGame extends Game{
 		Assets.load();
 		PlayAssets.load();
 		UIStyle.load();
-		Session session = new Session();
-		session.loadNewSMFile(CHAOZ_JAPAN);
-		session.notesIndex = 1;
-		PlayScreen play = new PlayScreen(session);
-		this.setScreen(play);
+		
 		
 //		SinglePlayerTestScreen p = new SinglePlayerTestScreen();
 //		this.setScreen(p);
-//		PersistantBackground.setBackground(Assets.background, 4, 4);
-//		MainMenu mainMenu = new MainMenu();
-//		this.setScreen(mainMenu);
+		PersistantBackground.setBackground(Assets.background, 4, 4);
+		MainMenu mainMenu = new MainMenu();
+		this.setScreen(mainMenu);
 	}
 	
 }

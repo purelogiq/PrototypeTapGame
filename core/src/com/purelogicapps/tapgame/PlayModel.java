@@ -1,11 +1,15 @@
 package com.purelogicapps.tapgame;
 
+import com.purelogicapps.tapgame.Note.HoldState;
+import com.purelogicapps.tapgame.Note.NoteType;
+
 
 /**
  * The purpose of this model is to time the the beats' position with the current music
  * time and to score the user based on their input.
  */
 public class PlayModel {
+	public static final float MAX_HOLD_SLEEP_TIME = 0.5f;
 	public static final int NUM_COLS = 4;
 	public Note[][] cols = new Note[NUM_COLS][];
 	public int[] colIndex = new int[NUM_COLS];
@@ -63,13 +67,13 @@ public class PlayModel {
 		loadBpmAndStopInfo();
 	}
 	
-	public void update(float songTime, boolean[] colsHeld){
+	public void update(float songTime, float deltaTime, boolean[] colsHeld){
 		// Update panel hold states.
 		for(int i = 0; i < NUM_COLS; i++){
 			this.colsHeld[i] = colsHeld[i];
 		}
 		updateCurrentBeat(songTime);
-		updateNotes();
+		updateNotes(deltaTime);
 	}
 
 	public float getCurrentBeat(){
@@ -77,11 +81,42 @@ public class PlayModel {
 	}
 	
 	public void touchDown(int panel){ // 0 <= panel <= 3
-		
+		Note[] col = cols[panel];
+		if(colIndex[panel] >= col.length) return;
+		Note note = col[colIndex[panel]];
+		// Check if it is in bounds to be scored.
+		if((note.start - currentBeat) * speed < 1){
+			if(note.type == NoteType.TAP){
+				note.hidden = true;
+			}else if(note.type == NoteType.HOLD){
+				note.hit();
+			}
+			colIndex[panel] += 1;
+		}
 	}
 	
-	private void updateNotes(){
-		
+	private void updateNotes(float deltaTime){
+		// Find the next active note in each column, skipped notes are "missed".
+		for(int i = 0; i < NUM_COLS; i++){
+			Note[] col = cols[i];
+
+			// Skip all notes that are "missed".
+			while(colIndex[i] < col.length &&
+				  (currentBeat - col[colIndex[i]].start) * speed > 1){
+				Note note = col[colIndex[i]];
+				if(note.type == NoteType.HOLD) note.holdState = HoldState.DEAD;
+				colIndex[i] += 1;
+				System.out.println("Missed in col " + i);
+			}
+			
+			// Update holds.
+			for(int j = 0; j < col.length; j++){
+				Note note = col[j];
+				if(note.type == NoteType.HOLD){
+					note.updateHold(colsHeld[i], currentBeat, deltaTime, MAX_HOLD_SLEEP_TIME);
+				}
+			}
+		}
 	}
 	
 	private void updateCurrentBeat(float songTime){

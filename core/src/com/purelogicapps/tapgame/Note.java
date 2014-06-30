@@ -32,9 +32,13 @@ public class Note {
 	}
 	
 	/** Call this every frame to update the hold's state. */
-	public void updateHold(boolean isHeld, float deltaTime, float maxSleepTime){
+	public void updateHold(boolean isHeld, float currentBeat, float deltaTime, float maxSleepTime){
 		if(holdState == HoldState.INACTIVE || holdState == HoldState.DEAD) return;
-		if(isHeld){
+		this.start = currentBeat;
+		if(this.start >= this.end){
+			this.hidden = true;
+		}
+		else if(isHeld){
 			holdState = HoldState.ALIVE;
 			sleepingTime = 0;
 		}else{
