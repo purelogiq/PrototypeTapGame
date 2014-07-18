@@ -1,11 +1,16 @@
 PrototypeTapGame
 ================
 
-You will have to create a libgdx project first (using the gradle setup tool) then copy the sources files in /android, /core, and /desktop.
+Import this project as a gradle project in eclipse.
+
 Download the prototype executable if you just want to play.
+
 Controls:
-	Mouse
+
+Mouse
+
 OR  Arrow Keys
+
 OR  D F J K
 
 and don't forget to INCREASE THE VOLUME!
